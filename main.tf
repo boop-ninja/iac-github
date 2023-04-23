@@ -9,7 +9,7 @@ data "github_repositories" "repositories" {
 }
 
 resource "github_branch_protection" "i" {
-  for_each      = data.github_repositories.repositories.names
+  for_each      = { for repo in data.github_repositories.repositories.names : repo => repo }
   pattern       = "main"
   repository_id = "${var.owner}/${each.value}"
 
