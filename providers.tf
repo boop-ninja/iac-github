@@ -1,5 +1,5 @@
 variable "gh_token" {
-  type      = string
+  type = string
 }
 
 provider "github" {
