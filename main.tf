@@ -4,10 +4,10 @@ variable "owner" {
 }
 
 variable "ignore_list" {
-    type    = list(string)
-    default = [
-      "wikijs-content"
-    ]
+  type = list(string)
+  default = [
+    "wikijs-content"
+  ]
 }
 
 data "github_repositories" "repositories" {
@@ -15,10 +15,18 @@ data "github_repositories" "repositories" {
   include_repo_id = true
 }
 
-resource "github_branch_protection" "i" {
+data "github_repository" "repository" {
   for_each = {
     for key, repo in data.github_repositories.repositories.names : repo => repo
-    if key != "" && !contains([],key)
+    if key != "" && !contains(var.ignore_list, key)
+  }
+  full_name = each.value
+}
+
+resource "github_branch_protection" "i" {
+  for_each = {
+    for repo in data.github_repository.repository.* : repo => repo.full_name
+    if !repo.archived
   }
   pattern       = "main"
   repository_id = each.value
