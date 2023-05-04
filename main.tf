@@ -20,7 +20,7 @@ data "github_repository" "repository" {
     for key, repo in data.github_repositories.repositories.names : repo => repo
     if key != "" && !contains(var.ignore_list, key)
   }
-  full_name = each.value
+  full_name = "${var.owner}/${each.value}"
 }
 
 resource "github_branch_protection" "i" {
@@ -62,7 +62,7 @@ resource "github_actions_secret" "i" {
 
   repository      = each.value["repo"]
   secret_name     = each.value["key"]
-  plaintext_value = "${var.owner}/${each.value["value"]}"
+  plaintext_value = each.value["value"]
 }
 
 output "repositories" {
