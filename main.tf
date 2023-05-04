@@ -23,21 +23,21 @@ data "github_repository" "repository" {
   full_name = each.value
 }
 
-#resource "github_branch_protection" "i" {
-#  for_each = {
-#    for repo in data.github_repository.repository.* : repo => repo.full_name
-#    if !repo.archived
-#  }
-#  pattern       = "main"
-#  repository_id = each.value
-#
-#  enforce_admins = true
-#
-#  require_conversation_resolution = true
-#
-#  allows_force_pushes = false
-#  allows_deletions    = false
-#}
+resource "github_branch_protection" "i" {
+  for_each = {
+    for repo in data.github_repository.repository.* : repo => repo.full_name
+    if !repo.archived
+  }
+  pattern       = "main"
+  repository_id = each.value
+
+  enforce_admins = true
+
+  require_conversation_resolution = true
+
+  allows_force_pushes = false
+  allows_deletions    = false
+}
 
 variable "docker_token" {
   default = ""
@@ -62,7 +62,7 @@ resource "github_actions_secret" "i" {
 
   repository      = each.value["repo"]
   secret_name     = each.value["key"]
-  plaintext_value = each.value["value"]
+  plaintext_value = "${var.owner}/${each.value["value"]}"
 }
 
 output "repositories" {
