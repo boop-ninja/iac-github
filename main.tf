@@ -55,14 +55,19 @@ locals {
     GH_TOKEN     = var.gh_token
     AUTO_TOKEN   = var.gh_token
   }
+
+  repo_secrets = flatten([for repo_key, repo in local.filtered_repos : [
+    for secret_key, value in local.secrets : {
+      id    = "${repo_key}-${secret_key}",
+      key   = secret_key,
+      value = value,
+      repo  = repo["full_name"]
+    }
+  ]])
 }
 
 resource "github_actions_secret" "i" {
-  for_each = {
-    for repo_key, repo in local.filtered_repos : repo => {
-      for secret_key, value in local.secrets : "${repo_key}-${secret_key}" => { key = secret_key, value = value, repo = repo["full_name"] }
-    }
-  }
+  for_each = { for secret in local.repo_secrets : secret.id => secret }
 
   repository      = each.value["repo"]
   secret_name     = each.value["key"]
