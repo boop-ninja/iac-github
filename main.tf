@@ -23,14 +23,21 @@ data "github_repository" "repository" {
   full_name = "${var.owner}/${each.value}"
 }
 
-locals {
-  filtered_repos = {
-    for repo in data.github_repository.repository.* : repo => repo.archived ? null : repo.full_name
+data "github_repository" "filtered_repository" {
+  for_each = {
+    for repo in data.github_repository.repository.* : repo => repo
+    if repo.archived != true
   }
+  full_name = each.value.full_name
 }
 
+
+
+
 resource "github_branch_protection" "i" {
-  for_each      = local.filtered_repos
+  for_each      = {
+    for repo in data.github_repository.filtered_repository.* : repo => repo
+  }
   pattern       = "main"
   repository_id = each.value
 
@@ -57,7 +64,7 @@ locals {
 
 resource "github_actions_secret" "i" {
   for_each = {
-    for repo in local.filtered_repos : repo => {
+    for repo in data.github_repository.filtered_repository.* : repo => {
       for key, value in local.secrets : key => { key = key, value = value, repo = repo["full_name"] }
     }
   }
