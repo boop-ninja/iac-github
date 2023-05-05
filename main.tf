@@ -26,7 +26,7 @@ data "github_repository" "repository" {
 data "github_repository" "filtered_repository" {
   for_each = {
     for repo in data.github_repository.repository.* : repo => repo
-    if repo.archived != true
+    if can(repo.archived) && !repo.archived
   }
   full_name = each.value.full_name
 }
