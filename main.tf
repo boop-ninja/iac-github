@@ -25,8 +25,7 @@ data "github_repository" "repository" {
 
 locals {
   filtered_repos = {
-    for repo in data.github_repository.repository.* : repo => repo
-    if !repo.archived
+    for key, repo in data.github_repository.repository.* : repo => repo.archived ? null : repo.full_name
   }
 }
 
