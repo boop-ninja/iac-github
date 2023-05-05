@@ -25,10 +25,10 @@ data "github_repository" "repository" {
 
 data "github_repository" "filtered_repository" {
   for_each = {
-    for key, repo in data.github_repository.repository.* : key => repo
+    for key, repo in data.github_repository.repository.* : key => repo.full_name
     if can(repo.archived) ? !repo.archived : true
   }
-  full_name = each.value.full_name
+  full_name = each.value
 }
 
 
