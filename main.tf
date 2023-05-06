@@ -25,7 +25,7 @@ data "github_repository" "repository" {
 
 locals {
   filtered_repos = {
-      for key, repo in data.github_repository.repository : key => repo
+      for key, repo in data.github_repository.repository : key => join("/", [var.owner,reverse(split("/", repo.full_name))[0]])
       if !repo.archived
   }
 }
@@ -33,7 +33,7 @@ locals {
 resource "github_branch_protection" "i" {
   for_each      = local.filtered_repos
   pattern       = "main"
-  repository_id = each.value["full_name"]
+  repository_id = each.value
 
   enforce_admins = true
 
@@ -60,7 +60,7 @@ locals {
       id    = "${repo_key}-${secret_key}",
       key   = secret_key,
       value = value,
-      repo  = repo["full_name"]
+      repo  = repo
     }
   ]])
 }
