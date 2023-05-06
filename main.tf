@@ -33,7 +33,7 @@ locals {
 resource "github_branch_protection" "i" {
   for_each      = local.filtered_repos
   pattern       = "main"
-  repository_id = each.value
+  repository_id = each.value["full_name"]
 
   enforce_admins = true
 
