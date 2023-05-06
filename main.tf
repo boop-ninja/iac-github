@@ -25,8 +25,8 @@ data "github_repository" "repository" {
 
 locals {
   filtered_repos = {
-      for key, repo in data.github_repository.repository : key => join("/", [var.owner,reverse(split("/", repo.full_name))[0]])
-      if !repo.archived
+    for key, repo in data.github_repository.repository : key => join("/", [var.owner, reverse(split("/", repo.full_name))[0]])
+    if !repo.archived
   }
 }
 
